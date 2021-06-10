@@ -29,6 +29,17 @@ external_stylesheets = [
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
 app.layout = html.Div([
+    html.Div(
+    dcc.DatePickerSingle(
+        id='my-date-picker-single',
+        min_date_allowed=dt(1995, 8, 5),
+        max_date_allowed=dt(2021, 5, 8),
+        initial_visible_month=dt(2017, 8, 5),
+        date=dt(2017, 8, 25)),
+        style={'width': '100%', 'display': 'flex', 'align-items': 'center', 'justify-content': 'center'} ),
+    html.Div(
+
+    ),
     html.Div(dcc.Dropdown(
             id='stock_symbol',
             options=[{'label': i, 'value': i} for i in available_symbol],
@@ -63,13 +74,13 @@ app.layout = html.Div([
         persistence_type='session',  # session, local, or memory. Default is 'local'
 
         updatemode='singledate'  # singledate or bothdates. Determines when callback is triggered
-    )),
+    ),style = {'width': '100%', 'display': 'flex', 'align-items': 'center', 'justify-content': 'center'}),
     html.Div(dcc.Dropdown(
                 id='select-sector',
                 options=[{'label': i, 'value': i} for i in available_indicators],
                 value='Commercial Banks'
             ),
-            style={'width': '48%', 'display': 'inline-block'}),
+            style = {'width': '100%', 'display': 'flex', 'align-items': 'center', 'justify-content': 'center'}),
 
     dcc.Graph(id='mymap'),
     dcc.Graph(id="mymap2"),
