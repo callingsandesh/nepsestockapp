@@ -171,8 +171,8 @@ def update_output(start_date, end_date,sector_name,symbol):
     today_date=data.index[-1]
     today = data.loc[today_date]
     today['percentage_change'] = (today['Closing Price'] - today['Previous Closing']).div(today['Previous Closing']).mul(100)
-    top_gainers=today.sort_values('percentage_change',ascending=False)[:15]
-    top_losers = today.sort_values('percentage_change',ascending=True)[:15]
+    top_gainers=today.sort_values('percentage_change',ascending=False)[:30]
+    top_losers = today.sort_values('percentage_change',ascending=True)[:30]
     fig_6 = go.Figure(data=[go.Table(
         header=dict(values=list(['Traded Companies', 'Stock Symbol', 'No. Of Transaction', 'Max Price',
        'Min Price', 'Closing Price', 'Traded Shares', 'Amount',
