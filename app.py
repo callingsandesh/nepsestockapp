@@ -34,8 +34,8 @@ app.layout = html.Div([
         id='my-date-picker-single',
         min_date_allowed=dt(1995, 8, 5),
         max_date_allowed=dt(2021, 5, 8),
-        initial_visible_month=dt(2017, 8, 5),
-        date=dt(2017, 8, 25)),
+        initial_visible_month=dt(2021, 6, 10),
+        date=dt(2021, 6, 10)),
         style={'width': '100%', 'display': 'flex', 'align-items': 'center', 'justify-content': 'center'} ),
     html.Div(
 
