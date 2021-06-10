@@ -30,6 +30,7 @@ external_stylesheets = [
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
 app.layout = html.Div([
+    html.H1("Nepal Stock Exchange Data Analysis", style={'textAlign': 'center'}),
     html.Div(
     dcc.DatePickerSingle(
         id='my-date-picker-single',
