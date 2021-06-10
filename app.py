@@ -3,13 +3,15 @@ from datetime import datetime as dt
 import dash_core_components as dcc
 import dash_html_components as html
 import pandas as pd
-#import numpy as np
+import numpy as np
 from dash.dependencies import Output, Input
 import plotly.express as px
 
-data = pd.read_csv("2010-05-09 to 2021-06-08.csv",parse_dates=['Date'],index_col='Date')
+raw_data=pd.read_csv("2010-05-09 to 2021-06-08.csv",parse_dates=['Date'])
+data = raw_data.set_index('Date')
 
 available_indicators = data['Sector'].dropna().unique()
+available_symbol = data['Stock Symbol'].dropna().unique()
 print(available_indicators)
 
 
@@ -68,18 +70,25 @@ app.layout = html.Div([
 
     dcc.Graph(id='mymap'),
     dcc.Graph(id="mymap2"),
+    html.Div(dcc.Dropdown(
+                id='stock_symbol',
+                options=[{'label': i, 'value': i} for i in available_symbol],
+                value='KBL'
+    )),
+    dcc.Graph(id='stock_price')
 
 
 ])
 
 
 @app.callback(
-    [Output('mymap', 'figure'),Output('mymap2', 'figure')],
+    [Output('mymap', 'figure'),Output('mymap2', 'figure'),Output('stock_price','figure')],
     [Input('my-date-picker-range', 'start_date'),
      Input('my-date-picker-range', 'end_date'),
-     Input('select-sector','value')]
+     Input('select-sector','value'),
+     Input('stock_symbol','value')]
 )
-def update_output(start_date, end_date,sector_name):
+def update_output(start_date, end_date,sector_name,symbol):
     print("date choosen",start_date,end_date)
     sector = data[data['Sector'] == sector_name]
     s_1 = sector[(sector.index == start_date) | (sector.index == end_date)]
@@ -108,10 +117,27 @@ def update_output(start_date, end_date,sector_name):
 
     )
 
-    return fig_1,fig_2
+    ##plotting price of specific stock
+    s_2=raw_data[['Date','Stock Symbol','Closing Price']]
+    s_2 = s_2.replace(0, np.NaN)
+    s_2 = s_2.pivot_table(index='Date', columns='Stock Symbol', values='Closing Price')
+    s_2 = s_2.interpolate(method='linear', limit_direction='forward', axis=0)
+    symbol=symbol.upper()
+    s_2=s_2[symbol].dropna()
+    fig_3=px.line(x=s_2.index,y=s_2.values,title="Price chart of "+ str(symbol))
+    fig_3.update_layout(
+        xaxis_title="Date",
+        yaxis_title="Price",
+
+    )
+
+
+    return fig_1,fig_2,fig_3
+
+
+
 
 server = app.server
-
 app.title = "ANALYTICS !"
 
 if __name__ == '__main__':
