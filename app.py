@@ -6,7 +6,6 @@ import pandas as pd
 #import numpy as np
 from dash.dependencies import Output, Input
 import plotly.express as px
-import my_theme
 
 data = pd.read_csv("2010-05-09 to 2021-06-08.csv",parse_dates=['Date'],index_col='Date')
 
