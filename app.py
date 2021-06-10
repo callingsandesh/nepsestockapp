@@ -7,7 +7,7 @@ import pandas as pd
 from dash.dependencies import Output, Input
 import plotly.express as px
 
-data = pd.read_csv("2021-05-23 to 2021-06-08.csv",parse_dates=['Date'],index_col='Date')
+data = pd.read_csv("2010-05-09 to 2021-06-08.csv",parse_dates=['Date'],index_col='Date')
 
 available_indicators = data['Sector'].dropna().unique()
 print(available_indicators)
@@ -23,7 +23,7 @@ external_stylesheets = [
 
 
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
-server = app.server
+
 
 app.title = "Percentage change over the range of time"
 
@@ -104,6 +104,7 @@ def update_output(start_date, end_date,sector_name):
 
     return fig_1,fig_2
 
+server = app.server
 
 if __name__ == '__main__':
     app.run_server(debug=True)
