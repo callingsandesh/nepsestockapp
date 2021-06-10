@@ -3,16 +3,15 @@ from datetime import datetime as dt
 import dash_core_components as dcc
 import dash_html_components as html
 import pandas as pd
-import numpy as np
+#import numpy as np
 from dash.dependencies import Output, Input
 import plotly.express as px
+import my_theme
 
-data = pd.read_csv("2010-05-09 to 2021-06-08.csv")
-data=data[data['Sector']=='Commercial Banks']
-data["Date"] = pd.to_datetime(data["Date"])
-data.set_index('Date',inplace=True)
+data = pd.read_csv("2010-05-09 to 2021-06-08.csv",parse_dates=['Date'],index_col='Date')
 
-
+available_indicators = data['Sector'].dropna().unique()
+print(available_indicators)
 
 
 external_stylesheets = [
@@ -33,7 +32,7 @@ app.title = "Percentage change over the range of time"
 
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 app.layout = html.Div([
-    html.H1("COMMERCIAL BANK PRICE CHANGES OVER RANGE OF DATE", style={'textAlign': 'center'}),
+    html.H1("PRICE CHANGES OF DIFFERENT SECTOR OVER RANGE OF DATE", style={'textAlign': 'center'}),
     html.Div(dcc.DatePickerRange(
         id='my-date-picker-range',  # ID to be used for callback
         calendar_orientation='horizontal',  # vertical or horizontal
@@ -60,19 +59,30 @@ app.layout = html.Div([
 
         updatemode='singledate'  # singledate or bothdates. Determines when callback is triggered
     )),
+    html.Div(dcc.Dropdown(
+                id='select-sector',
+                options=[{'label': i, 'value': i} for i in available_indicators],
+                value='Commercial Banks'
+            ),
+            style={'width': '48%', 'display': 'inline-block'}),
+
     dcc.Graph(id='mymap'),
-    dcc.Graph(id="mymap2")
+    dcc.Graph(id="mymap2"),
+
+
 ])
 
 
 @app.callback(
     [Output('mymap', 'figure'),Output('mymap2', 'figure')],
     [Input('my-date-picker-range', 'start_date'),
-     Input('my-date-picker-range', 'end_date')]
+     Input('my-date-picker-range', 'end_date'),
+     Input('select-sector','value')]
 )
-def update_output(start_date, end_date):
+def update_output(start_date, end_date,sector_name):
     print("date choosen",start_date,end_date)
-    s_1 = data[(data.index == start_date) | (data.index == end_date)]
+    sector = data[data['Sector'] == sector_name]
+    s_1 = sector[(sector.index == start_date) | (sector.index == end_date)]
     s_1 = s_1.sort_values('Closing Price')
 
     fig_1 = px.bar(s_1, x="Stock Symbol", y="Closing Price",
