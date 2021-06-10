@@ -22,10 +22,11 @@ external_stylesheets = [
 ]
 
 
+
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
 
-app.title = "ANALYTICS"
+
 
 
 
@@ -105,6 +106,8 @@ def update_output(start_date, end_date,sector_name):
     return fig_1,fig_2
 
 server = app.server
+
+app.title = "ANALYTICS !"
 
 if __name__ == '__main__':
     app.run_server(debug=True)
