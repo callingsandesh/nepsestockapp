@@ -1,5 +1,4 @@
 import dash
-import dash_auth
 from datetime import datetime as dt
 import dash_core_components as dcc
 import dash_html_components as html
@@ -8,10 +7,6 @@ import numpy as np
 from dash.dependencies import Output, Input
 import plotly.express as px
 
-VALID_USERNAME_PASSWORD_PAIRS = {
-    'laxman': 'laxman',
-    'sandesh':'sandesh'
-}
 
 raw_data=pd.read_csv("2010-05-09 to 2021-06-08.csv",parse_dates=['Date'])
 data = raw_data.set_index('Date')
@@ -33,13 +28,16 @@ external_stylesheets = [
 
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
-auth = dash_auth.BasicAuth(
-    app,
-    VALID_USERNAME_PASSWORD_PAIRS
-)
-
 app.layout = html.Div([
-    html.H1("PRICE CHANGES OF DIFFERENT SECTOR OVER RANGE OF DATE", style={'textAlign': 'center'}),
+    html.Div(dcc.Dropdown(
+            id='stock_symbol',
+            options=[{'label': i, 'value': i} for i in available_symbol],
+            value='KBL'),
+            style = {'width': '100%', 'display': 'flex', 'align-items': 'center', 'justify-content': 'center'}),
+    dcc.Graph(id='stock_price'),
+    dcc.Graph(id='stock_returns'),
+    dcc.Graph(id='stock_volatility')
+                ,html.H1("PRICE CHANGES OF DIFFERENT SECTOR OVER RANGE OF DATE", style={'textAlign': 'center'}),
     html.Div(dcc.DatePickerRange(
         id='my-date-picker-range',  # ID to be used for callback
         calendar_orientation='horizontal',  # vertical or horizontal
@@ -75,19 +73,14 @@ app.layout = html.Div([
 
     dcc.Graph(id='mymap'),
     dcc.Graph(id="mymap2"),
-    html.Div(dcc.Dropdown(
-                id='stock_symbol',
-                options=[{'label': i, 'value': i} for i in available_symbol],
-                value='KBL'
-    )),
-    dcc.Graph(id='stock_price')
+
 
 
 ])
 
 
 @app.callback(
-    [Output('mymap', 'figure'),Output('mymap2', 'figure'),Output('stock_price','figure')],
+    [Output('mymap', 'figure'),Output('mymap2', 'figure'),Output('stock_price','figure'),Output('stock_returns','figure'),Output('stock_volatility','figure')],
     [Input('my-date-picker-range', 'start_date'),
      Input('my-date-picker-range', 'end_date'),
      Input('select-sector','value'),
@@ -136,8 +129,23 @@ def update_output(start_date, end_date,sector_name,symbol):
 
     )
 
+    returns=s_2.pct_change()
+    fig_4 = px.line(x=returns.index, y=returns.values, title="% returns chart of " + str(symbol))
+    fig_4.update_layout(
+        xaxis_title="Date",
+        yaxis_title="% returns",
 
-    return fig_1,fig_2,fig_3
+    )
+
+    volatility=returns.mul(returns.values)
+    fig_5 = px.line(x=volatility.index, y=volatility.values, title="Volatity " + str(symbol))
+    fig_5.update_layout(
+        xaxis_title="Date",
+        yaxis_title="% V",
+
+    )
+
+    return fig_1,fig_2,fig_3,fig_4,fig_5
 
 
 
