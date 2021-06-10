@@ -6,14 +6,15 @@ import pandas as pd
 import numpy as np
 from dash.dependencies import Output, Input
 import plotly.express as px
+import plotly.graph_objects as go
 
 
-raw_data=pd.read_csv("2010-05-09 to 2021-06-08.csv",parse_dates=['Date'])
+raw_data=pd.read_csv("2010-05-09 to 2021-06-10.csv",parse_dates=['Date'])
 data = raw_data.set_index('Date')
 
 available_indicators = data['Sector'].dropna().unique()
 available_symbol = data['Stock Symbol'].dropna().unique()
-print(available_indicators)
+#print(available_indicators)
 
 
 external_stylesheets = [
@@ -36,10 +37,14 @@ app.layout = html.Div([
         max_date_allowed=dt(2021, 5, 8),
         initial_visible_month=dt(2021, 6, 10),
         date=dt(2021, 6, 10)),
-        style={'width': '100%', 'display': 'flex', 'align-items': 'center', 'justify-content': 'center'} ),
+        style={'width': '100%', 'display': 'flex', 'align-items': 'center', 'justify-content': 'center'}),
     html.Div(
+          html.Div(html.H3(" AS OF "+str(data.index[-1].strftime('%Y-%m-%d'))+"  ,3:00:00 PM", style={'textAlign': 'center'}))),
+    html.H3("TOP GAINERS", style={'textAlign': 'center'}),
+    dcc.Graph(id='table_gainers'),
+    html.H3("TOP LOSERS", style={'textAlign': 'center'}),
+    dcc.Graph(id='table_losers'),
 
-    ),
     html.Div(dcc.Dropdown(
             id='stock_symbol',
             options=[{'label': i, 'value': i} for i in available_symbol],
@@ -91,14 +96,22 @@ app.layout = html.Div([
 
 
 @app.callback(
-    [Output('mymap', 'figure'),Output('mymap2', 'figure'),Output('stock_price','figure'),Output('stock_returns','figure'),Output('stock_volatility','figure')],
+    [Output('mymap', 'figure'),Output('mymap2', 'figure'),
+     Output('stock_price','figure'),
+     Output('stock_returns','figure'),
+     Output('stock_volatility','figure'),
+     Output('table_gainers','figure'),
+     Output('table_losers','figure')
+     ],
     [Input('my-date-picker-range', 'start_date'),
      Input('my-date-picker-range', 'end_date'),
      Input('select-sector','value'),
-     Input('stock_symbol','value')]
+     Input('stock_symbol','value'),
+     #Input('my-date-picker-single','date')
+    ]
 )
 def update_output(start_date, end_date,sector_name,symbol):
-    print("date choosen",start_date,end_date)
+    #print("date choosen",start_date,end_date)
     sector = data[data['Sector'] == sector_name]
     s_1 = sector[(sector.index == start_date) | (sector.index == end_date)]
     s_1 = s_1.sort_values('Closing Price')
@@ -155,8 +168,40 @@ def update_output(start_date, end_date,sector_name,symbol):
         yaxis_title="% V",
 
     )
+    today_date=data.index[-1]
+    today = data.loc[today_date]
+    today['percentage_change'] = (today['Closing Price'] - today['Previous Closing']).div(today['Previous Closing']).mul(100)
+    top_gainers=today.sort_values('percentage_change',ascending=False)[:15]
+    top_losers = today.sort_values('percentage_change',ascending=True)[:15]
+    fig_6 = go.Figure(data=[go.Table(
+        header=dict(values=list(['Traded Companies', 'Stock Symbol', 'No. Of Transaction', 'Max Price',
+       'Min Price', 'Closing Price', 'Traded Shares', 'Amount',
+       'Difference Rs.', 'Sector', 'percentage_change']),
+                    fill_color='paleturquoise',
+                    align='left'),
+        cells=dict(values=[top_gainers['Traded Companies'], top_gainers['Stock Symbol'], top_gainers['No. Of Transaction'], top_gainers['Max Price'],
+                           top_gainers['Min Price'],top_gainers['Closing Price'],top_gainers['Traded Shares'],top_gainers['Amount'],top_gainers['Difference Rs.'],
+                           top_gainers['Sector'],top_gainers['percentage_change']],
+                   fill_color='chartreuse',
+                   align='left'))
+    ])
+    fig_7 = go.Figure(data=[go.Table(
+        header=dict(values=list(['Traded Companies', 'Stock Symbol', 'No. Of Transaction', 'Max Price',
+                                 'Min Price', 'Closing Price', 'Traded Shares', 'Amount',
+                                 'Difference Rs.', 'Sector', 'percentage_change']),
+                    fill_color='paleturquoise',
+                    align='left'),
+        cells=dict(
+            values=[top_losers['Traded Companies'], top_losers['Stock Symbol'], top_losers['No. Of Transaction'],
+                    top_losers['Max Price'],
+                    top_losers['Min Price'], top_losers['Closing Price'], top_losers['Traded Shares'],
+                    top_losers['Amount'], top_losers['Difference Rs.'],
+                    top_losers['Sector'], top_losers['percentage_change']],
+            fill_color='crimson',
+            align='left'))
+    ])
 
-    return fig_1,fig_2,fig_3,fig_4,fig_5
+    return fig_1,fig_2,fig_3,fig_4,fig_5,fig_6,fig_7
 
 
 
