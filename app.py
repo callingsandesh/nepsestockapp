@@ -102,6 +102,11 @@ def update_output(start_date, end_date,sector_name):
             title="Percentage change of price over range of period"
 
         )
+    fig_2.update_layout(
+        xaxis_title="Stock Symbol",
+        yaxis_title="Percentage Change",
+
+    )
 
     return fig_1,fig_2
 
