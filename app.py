@@ -7,7 +7,7 @@ import pandas as pd
 from dash.dependencies import Output, Input
 import plotly.express as px
 
-data = pd.read_csv("2010-05-09 to 2021-06-08.csv",parse_dates=['Date'],index_col='Date')
+data = pd.read_csv("2021-05-23 to 2021-06-08.csv",parse_dates=['Date'],index_col='Date')
 
 available_indicators = data['Sector'].dropna().unique()
 print(available_indicators)
