@@ -1,4 +1,5 @@
 import dash
+import dash_auth
 from datetime import datetime as dt
 import dash_core_components as dcc
 import dash_html_components as html
@@ -6,6 +7,11 @@ import pandas as pd
 import numpy as np
 from dash.dependencies import Output, Input
 import plotly.express as px
+
+VALID_USERNAME_PASSWORD_PAIRS = {
+    'laxman': 'laxman',
+    'sandesh':'sandesh'
+}
 
 raw_data=pd.read_csv("2010-05-09 to 2021-06-08.csv",parse_dates=['Date'])
 data = raw_data.set_index('Date')
@@ -27,12 +33,11 @@ external_stylesheets = [
 
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
+auth = dash_auth.BasicAuth(
+    app,
+    VALID_USERNAME_PASSWORD_PAIRS
+)
 
-
-
-
-
-app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 app.layout = html.Div([
     html.H1("PRICE CHANGES OF DIFFERENT SECTOR OVER RANGE OF DATE", style={'textAlign': 'center'}),
     html.Div(dcc.DatePickerRange(
