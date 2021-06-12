@@ -95,23 +95,60 @@ app.layout = html.Div([
 
 ])
 
+@app.callback(
+    [Output('stock_price','figure'),
+     Output('stock_returns','figure'),
+     Output('stock_volatility','figure'),],
+    [Input('stock_symbol','value'),]
+)
+def update_stock(symbol):
+    ##plotting price of specific stock
+    s_2 = raw_data[['Date', 'Stock Symbol', 'Closing Price']]
+    s_2 = s_2.replace(0, np.NaN)
+    s_2 = s_2.pivot_table(index='Date', columns='Stock Symbol', values='Closing Price')
+    s_2 = s_2.interpolate(method='linear', limit_direction='forward', axis=0)
+    symbol = symbol.upper()
+    s_2 = s_2[symbol].dropna()
+    fig_3 = px.line(x=s_2.index, y=s_2.values, title="Price chart of " + str(symbol))
+    fig_3.update_layout(
+        xaxis_title="Date",
+        yaxis_title="Price",
+
+    )
+
+    returns = s_2.pct_change()
+    fig_4 = px.line(x=returns.index, y=returns.values, title="% returns chart of " + str(symbol))
+    fig_4.update_layout(
+        xaxis_title="Date",
+        yaxis_title="% returns",
+
+    )
+
+    volatility = returns.mul(returns.values)
+    fig_5 = px.line(x=volatility.index, y=volatility.values, title="Volatity " + str(symbol))
+    fig_5.update_layout(
+        xaxis_title="Date",
+        yaxis_title="% V",)
+
+    return fig_3,fig_4,fig_5
+
 
 @app.callback(
     [Output('mymap', 'figure'),Output('mymap2', 'figure'),
-     Output('stock_price','figure'),
-     Output('stock_returns','figure'),
-     Output('stock_volatility','figure'),
+
      Output('table_gainers','figure'),
-     Output('table_losers','figure')
+     Output('table_losers','figure'),
      ],
-    [Input('my-date-picker-range', 'start_date'),
+    [Input('my-date-picker-single','date')
+    ,Input('my-date-picker-range', 'start_date'),
      Input('my-date-picker-range', 'end_date'),
      Input('select-sector','value'),
-     Input('stock_symbol','value'),
+
      #Input('my-date-picker-single','date')
     ]
 )
-def update_output(start_date, end_date,sector_name,symbol):
+def update_output(date_single,start_date, end_date,sector_name):
+    print("date single: ",date_single)
     #print("date choosen",start_date,end_date)
     sector = data[data['Sector'] == sector_name]
     s_1 = sector[(sector.index == start_date) | (sector.index == end_date)]
@@ -140,36 +177,10 @@ def update_output(start_date, end_date,sector_name,symbol):
 
     )
 
-    ##plotting price of specific stock
-    s_2=raw_data[['Date','Stock Symbol','Closing Price']]
-    s_2 = s_2.replace(0, np.NaN)
-    s_2 = s_2.pivot_table(index='Date', columns='Stock Symbol', values='Closing Price')
-    s_2 = s_2.interpolate(method='linear', limit_direction='forward', axis=0)
-    symbol=symbol.upper()
-    s_2=s_2[symbol].dropna()
-    fig_3=px.line(x=s_2.index,y=s_2.values,title="Price chart of "+ str(symbol))
-    fig_3.update_layout(
-        xaxis_title="Date",
-        yaxis_title="Price",
 
-    )
 
-    returns=s_2.pct_change()
-    fig_4 = px.line(x=returns.index, y=returns.values, title="% returns chart of " + str(symbol))
-    fig_4.update_layout(
-        xaxis_title="Date",
-        yaxis_title="% returns",
 
-    )
-
-    volatility=returns.mul(returns.values)
-    fig_5 = px.line(x=volatility.index, y=volatility.values, title="Volatity " + str(symbol))
-    fig_5.update_layout(
-        xaxis_title="Date",
-        yaxis_title="% V",
-
-    )
-    today_date=data.index[-1]
+    today_date=date_single
     today = data.loc[today_date]
     today['percentage_change'] = (today['Closing Price'] - today['Previous Closing']).div(today['Previous Closing']).mul(100)
     top_gainers=today.sort_values('percentage_change',ascending=False)[:30]
@@ -202,7 +213,7 @@ def update_output(start_date, end_date,sector_name,symbol):
             align='left'))
     ])
 
-    return fig_1,fig_2,fig_3,fig_4,fig_5,fig_6,fig_7
+    return fig_1,fig_2,fig_6,fig_7
 
 
 
