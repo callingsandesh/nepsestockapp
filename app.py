@@ -97,6 +97,7 @@ app.layout = html.Div([
 
 ])
 
+##callbacks to return the stock price, stock returns , stock volatility
 @app.callback(
     [Output('stock_price','figure'),
      Output('stock_returns','figure'),
@@ -135,6 +136,8 @@ def update_stock(symbol):
     return fig_3,fig_4,fig_5
 
 
+## callbacks to return the top gainers and top loosers
+
 
 
 @app.callback(
@@ -161,7 +164,7 @@ def update_output(date_single,start_date, end_date,sector_name):
 
     fig_1 = px.bar(s_1, x="Stock Symbol", y="Closing Price",
                    color=s_1.index, barmode='group',
-                   title="Prices of stock of commercial banks of nepal over the specific period of time",
+                   title="Prices of stock of "+ str(sector_name) +" of nepal over the specific period of time",
 
                  height=400)
 
