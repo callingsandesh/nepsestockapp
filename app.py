@@ -12,6 +12,7 @@ import plotly.graph_objects as go
 raw_data=pd.read_csv("2010-05-09 to 2021-06-10.csv",parse_dates=['Date'])
 data = raw_data.set_index('Date')
 
+print(data.index[-1].date())
 available_indicators = data['Sector'].dropna().unique()
 available_symbol = data['Stock Symbol'].dropna().unique()
 #print(available_indicators)
@@ -66,11 +67,11 @@ app.layout = html.Div([
         is_RTL=False,  # True or False for direction of calendar
         clearable=True,  # whether or not the user can clear the dropdown
         number_of_months_shown=1,  # number of months shown when calendar is open
-        min_date_allowed=dt(2010, 5, 10),  # minimum date allowed on the DatePickerRange component
-        max_date_allowed=dt(2021, 6, 8),  # maximum date allowed on the DatePickerRange component
+        min_date_allowed=data.index[0],  # minimum date allowed on the DatePickerRange component
+        max_date_allowed=data.index[-1],  # maximum date allowed on the DatePickerRange component
         initial_visible_month=dt(2020, 7, 8),  # the month initially presented when the user opens the calendar
         start_date=dt(2020, 7, 8).date(),
-        end_date=dt(2021, 6, 8).date(),
+        end_date=data.index[-1].date(),
         display_format='MMM Do, YY',  # how selected dates are displayed in the DatePickerRange component.
         month_format='MMMM, YYYY',  # how calendar headers are displayed when the calendar is opened.
         minimum_nights=2,  # minimum number of days between start and end date
@@ -131,6 +132,8 @@ def update_stock(symbol):
         yaxis_title="% V",)
 
     return fig_3,fig_4,fig_5
+
+
 
 
 @app.callback(
