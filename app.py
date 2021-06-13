@@ -147,7 +147,7 @@ def update_stock(symbol):
      Output('top_gainers_vs_traded_share_vs_closing_price','figure'),
      Output('top_traded_share_vs_price_difference','figure'),
      Output('top_traded_share_vs_closing_price','figure')],
-     Input('my-date-picker-single','date')
+     [Input('my-date-picker-single','date')]
 
 )
 def update_today_chart(date_single):
