@@ -37,10 +37,10 @@ app.layout = html.Div([
     html.Div(
     dcc.DatePickerSingle(
         id='my-date-picker-single',
-        min_date_allowed=dt(1995, 8, 5),
-        max_date_allowed=dt(2021, 5, 8),
+        min_date_allowed=dt(2010, 7, 10),
+        max_date_allowed=data.index[-1],
         initial_visible_month=dt(2021, 6, 10),
-        date=data.index[-1].date(),
+        date=dt(2021,6,10),
         style={'width': '100%', 'display': 'flex', 'align-items': 'center', 'justify-content': 'center'}),),
     html.Div(
           html.Div(html.H3(" AS OF "+str(data.index[-1].strftime('%Y-%m-%d'))+"  ,3:00:00 PM", style={'textAlign': 'center'}))),
