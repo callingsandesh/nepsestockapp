@@ -11,6 +11,7 @@ import plotly.graph_objects as go
 
 raw_data=pd.read_csv("2010-05-09 to 2021-06-10.csv",parse_dates=['Date'])
 data = raw_data.set_index('Date')
+sector = pd.read_csv('total_listed_stock_new.csv')
 
 print(data.index[-1].date())
 available_indicators = data['Sector'].dropna().unique()
@@ -104,13 +105,13 @@ app.layout = html.Div([
 )
 def update_stock(symbol):
     ##plotting price of specific stock
-    s_2 = raw_data[['Date', 'Stock Symbol', 'Closing Price']]
+    s_2 = raw_data[['Date', 'Stock Symbol', 'Closing Price','Traded Companies']]
     s_2 = s_2.replace(0, np.NaN)
-    s_2 = s_2.pivot_table(index='Date', columns='Stock Symbol', values='Closing Price')
+    s_2 = s_2.pivot_table(index='Date', columns=['Stock Symbol','Traded Companies'], values='Closing Price')
     s_2 = s_2.interpolate(method='linear', limit_direction='forward', axis=0)
     symbol = symbol.upper()
     s_2 = s_2[symbol].dropna()
-    fig_3 = px.line(x=s_2.index, y=s_2.values, title="Price chart of " + str(symbol))
+    fig_3 = px.line(s_2, title="Price chart of " + str(s_2.columns[0]))
     fig_3.update_layout(
         xaxis_title="Date",
         yaxis_title="Price",
@@ -118,7 +119,7 @@ def update_stock(symbol):
     )
 
     returns = s_2.pct_change()
-    fig_4 = px.line(x=returns.index, y=returns.values, title="% returns chart of " + str(symbol))
+    fig_4 = px.line(returns, title="% returns chart of " +str(s_2.columns[0]))
     fig_4.update_layout(
         xaxis_title="Date",
         yaxis_title="% returns",
@@ -126,7 +127,7 @@ def update_stock(symbol):
     )
 
     volatility = returns.mul(returns.values)
-    fig_5 = px.line(x=volatility.index, y=volatility.values, title="Volatity " + str(symbol))
+    fig_5 = px.line(volatility, title="Volatity of "+str(s_2.columns[0]))
     fig_5.update_layout(
         xaxis_title="Date",
         yaxis_title="% V",)
@@ -156,6 +157,7 @@ def update_output(date_single,start_date, end_date,sector_name):
     sector = data[data['Sector'] == sector_name]
     s_1 = sector[(sector.index == start_date) | (sector.index == end_date)]
     s_1 = s_1.sort_values('Closing Price')
+
 
     fig_1 = px.bar(s_1, x="Stock Symbol", y="Closing Price",
                    color=s_1.index, barmode='group',
