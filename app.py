@@ -37,10 +37,10 @@ app.layout = html.Div([
     html.Div(
         dcc.DatePickerSingle(
         id='my-date-picker-single',
-        min_date_allowed=dt(2010, 7, 10),
-        max_date_allowed=dt(2021,6,10),
+        min_date_allowed=data.index[0],
+        max_date_allowed=data.index[-1],
         initial_visible_month=dt(2021, 6, 10),
-        date=dt(2021,6,10),
+        date=data.index[-1].date(),
         style={'width': '100%', 'display': 'flex', 'align-items': 'center', 'justify-content': 'center'})
         ),
     html.Div(
