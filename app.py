@@ -17,7 +17,7 @@ sector = pd.read_csv('total_listed_stock_new.csv')
 print(data.index[-1].date())
 available_indicators = data['Sector'].dropna().unique()
 available_symbol = data['Stock Symbol'].dropna().unique()
-#print(available_indicators)
+
 
 
 external_stylesheets = [
@@ -35,13 +35,14 @@ app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 app.layout = html.Div([
     html.H1("Nepal Stock Exchange Data Analysis", style={'textAlign': 'center'}),
     html.Div(
-    dcc.DatePickerSingle(
+        dcc.DatePickerSingle(
         id='my-date-picker-single',
         min_date_allowed=dt(2010, 7, 10),
-        max_date_allowed=data.index[-1],
+        max_date_allowed=dt(2021,6,10),
         initial_visible_month=dt(2021, 6, 10),
         date=dt(2021,6,10),
-        style={'width': '100%', 'display': 'flex', 'align-items': 'center', 'justify-content': 'center'}),),
+        style={'width': '100%', 'display': 'flex', 'align-items': 'center', 'justify-content': 'center'})
+        ),
     html.Div(
           html.Div(html.H3(" AS OF "+str(data.index[-1].strftime('%Y-%m-%d'))+"  ,3:00:00 PM", style={'textAlign': 'center'}))),
     html.H3("TOP GAINERS", style={'textAlign': 'center'}),
@@ -146,7 +147,7 @@ def update_stock(symbol):
      Output('top_gainers_vs_traded_share_vs_closing_price','figure'),
      Output('top_traded_share_vs_price_difference','figure'),
      Output('top_traded_share_vs_closing_price','figure')],
-    Input('my-date-picker-single','date')
+     Input('my-date-picker-single','date')
 
 )
 def update_today_chart(date_single):
@@ -274,8 +275,6 @@ def update_today_chart(date_single):
     Input('my-date-picker-range', 'start_date'),
      Input('my-date-picker-range', 'end_date'),
      Input('select-sector','value'),
-
-     #Input('my-date-picker-single','date')
     ]
 )
 def update_output(start_date, end_date,sector_name):
