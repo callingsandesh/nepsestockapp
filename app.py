@@ -10,7 +10,7 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
 
-raw_data=pd.read_csv("2010-05-09 to 2021-06-13.csv",parse_dates=['Date'])
+raw_data=pd.read_csv("2010-05-09 to 2021-06-14.csv",parse_dates=['Date'])
 data = raw_data.set_index('Date')
 sector = pd.read_csv('total_listed_stock_new.csv')
 
