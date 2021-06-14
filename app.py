@@ -34,6 +34,7 @@ app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
 app.layout = html.Div([
     html.H1("Nepal Stock Exchange Data Analysis", style={'textAlign': 'center'}),
+
     html.Div(
         dcc.DatePickerSingle(
         id='my-date-picker-single',
@@ -43,10 +44,7 @@ app.layout = html.Div([
         date=data.index[-1].date(),
         style={'width': '100%', 'display': 'flex', 'align-items': 'center', 'justify-content': 'center'})
         ),
-
-    html.Div(
-          html.Div(html.H3(" AS OF "+str(data.index[-1].strftime('%Y-%m-%d'))+"  ,3:00:00 PM", style={'textAlign': 'center'}))),
-          html.H3("Market Summary", style={'textAlign': 'center'}),
+        html.H3("Market Summary", style={'textAlign': 'center'}),
     html.Div(dcc.Graph(id='market_summary'),
         style={'width': '100%', 'display': 'flex', 'align-items': 'center', 'justify-content': 'center'}),
 
@@ -177,6 +175,7 @@ def update_stock(symbol):
 def update_today_chart(date_single,total_selection):
     today_date = date_single
     today = data.loc[today_date]
+    text_today = "AS OF"+str(today) + "3:00:00"
 
     #market summary
     total_turnovers = int(round(np.sum(today['Amount']), 0))
@@ -356,4 +355,4 @@ server = app.server
 app.title = "ANALYTICS !"
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server(debug=False)
