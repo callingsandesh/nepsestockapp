@@ -46,6 +46,10 @@ app.layout = html.Div([
 
     html.Div(
           html.Div(html.H3(" AS OF "+str(data.index[-1].strftime('%Y-%m-%d'))+"  ,3:00:00 PM", style={'textAlign': 'center'}))),
+          html.H3("Market Summary", style={'textAlign': 'center'}),
+    html.Div(dcc.Graph(id='market_summary'),
+        style={'width': '100%', 'display': 'flex', 'align-items': 'center', 'justify-content': 'center'}),
+
 html.Div(
         dcc.Dropdown(
         id='total_selection',
@@ -157,9 +161,12 @@ def update_stock(symbol):
     return fig_3,fig_4,fig_5
 
 
+
+
 ## callbacks to return the top gainers and top loosers , Top gainers vs Traded share VS closing price,
 @app.callback(
-    [Output('table_gainers','figure'),
+    [Output('market_summary','figure'),
+     Output('table_gainers','figure'),
      Output('table_losers','figure'),
      Output('top_gainers_vs_traded_share_vs_closing_price','figure'),
      Output('top_traded_share_vs_price_difference','figure'),
@@ -170,6 +177,16 @@ def update_stock(symbol):
 def update_today_chart(date_single,total_selection):
     today_date = date_single
     today = data.loc[today_date]
+
+    #market summary
+    total_turnovers = int(round(np.sum(today['Amount']), 0))
+    total_traded_shares = int(np.sum(today['Traded Shares']))
+    total_transaction = np.sum(today['No. Of Transaction'])
+    fig_11 = go.Figure(data=[go.Table(header=dict(values=['Stats', 'Total']),
+                                   cells=dict(values=[['Total Turnover','Total Traded Shares' ,'Total Transaction' ], [total_turnovers,total_traded_shares,total_transaction]]))
+                          ])
+
+    fig_11.update_layout(width=1000, height=300)
     today['percentage_change'] = (today['Closing Price'] - today['Previous Closing']).div(
         today['Previous Closing']).mul(100)
     top_gainers = today.sort_values('percentage_change', ascending=False)[:total_selection]
@@ -280,7 +297,7 @@ def update_today_chart(date_single,total_selection):
     fig_10.update_yaxes(title_text="Total Share Traded", secondary_y=False)
     fig_10.update_yaxes(title_text="Closing Price", secondary_y=True)
 
-    return fig_6,fig_7,fig_8,fig_9,fig_10
+    return fig_11,fig_6,fig_7,fig_8,fig_9,fig_10
 
 
 
