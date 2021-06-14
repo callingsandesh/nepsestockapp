@@ -43,13 +43,29 @@ app.layout = html.Div([
         date=data.index[-1].date(),
         style={'width': '100%', 'display': 'flex', 'align-items': 'center', 'justify-content': 'center'})
         ),
+
     html.Div(
           html.Div(html.H3(" AS OF "+str(data.index[-1].strftime('%Y-%m-%d'))+"  ,3:00:00 PM", style={'textAlign': 'center'}))),
+html.Div(
+        dcc.Dropdown(
+        id='total_selection',
+        options=[
+            {'label': '10', 'value': 10},
+            {'label': '15', 'value': 15},
+            {'label': '20', 'value': 20},
+            {'label': '25', 'value': 25,},
+            {'label': '30', 'value': 30}
+        ],
+        value=10
+    )
+        ,
+        style={'width': '100%', 'display': 'flex', 'align-items': 'center', 'justify-content': 'center'})
+        ,
     html.H3("TOP GAINERS", style={'textAlign': 'center'}),
     dcc.Graph(id='table_gainers'),
     html.H3("TOP LOSERS", style={'textAlign': 'center'}),
     dcc.Graph(id='table_losers'),
-    html.H3("TOP GAINERS IN ASCENDING ORDER FROM LEFT TO RIGHT VS TRADED SHARES", style={'textAlign': 'center'}),
+    html.H3("TOP GAINERS IN DESENDING ORDER FROM LEFT TO RIGHT VS TRADED SHARES", style={'textAlign': 'center'}),
     dcc.Graph(id='top_gainers_vs_traded_share_vs_closing_price'),
     html.H3("TOP TRADED SHARES VS PRICE DIFFERENCE OF STOCK", style={'textAlign': 'center'}),
     dcc.Graph(id='top_traded_share_vs_price_difference'),
@@ -106,7 +122,8 @@ app.layout = html.Div([
     [Output('stock_price','figure'),
      Output('stock_returns','figure'),
      Output('stock_volatility','figure'),],
-    [Input('stock_symbol','value'),]
+
+    [Input('stock_symbol','value')]
 )
 def update_stock(symbol):
     ##plotting price of specific stock
@@ -147,16 +164,16 @@ def update_stock(symbol):
      Output('top_gainers_vs_traded_share_vs_closing_price','figure'),
      Output('top_traded_share_vs_price_difference','figure'),
      Output('top_traded_share_vs_closing_price','figure')],
-     [Input('my-date-picker-single','date')]
+     [Input('my-date-picker-single','date'),Input('total_selection','value')]
 
 )
-def update_today_chart(date_single):
+def update_today_chart(date_single,total_selection):
     today_date = date_single
     today = data.loc[today_date]
     today['percentage_change'] = (today['Closing Price'] - today['Previous Closing']).div(
         today['Previous Closing']).mul(100)
-    top_gainers = today.sort_values('percentage_change', ascending=False)[:15]
-    top_losers = today.sort_values('percentage_change', ascending=True)[:15]
+    top_gainers = today.sort_values('percentage_change', ascending=False)[:total_selection]
+    top_losers = today.sort_values('percentage_change', ascending=True)[:total_selection]
     fig_6 = go.Figure(data=[go.Table(
         header=dict(values=list(['Traded Companies', 'Stock Symbol', 'No. Of Transaction', 'Max Price',
                                  'Min Price', 'Closing Price', 'Traded Shares', 'Amount',
@@ -215,14 +232,14 @@ def update_today_chart(date_single):
             colors.append('crimson')
         else:
             colors.append('blue')
-    stock_today = today.groupby('Stock Symbol')['Traded Shares', 'Closing Price'].mean().sort_values('Traded Shares',ascending=False)[:25]
+    stock_today = today.groupby('Stock Symbol')['Traded Shares', 'Closing Price'].mean().sort_values('Traded Shares',ascending=False)[:total_selection]
     fig_9 = make_subplots(specs=[[{"secondary_y": True}]])
     # Use textposition='auto' for direct text
     fig_9 = go.Figure(data=[go.Bar(
         x=stock_today.index, y=stock_today['Traded Shares'],
-        text=diff[:25],
+        text=diff[:total_selection],
         textposition='auto',
-        marker_color=colors[:25],
+        marker_color=colors[:total_selection],
     )])
     fig_9.update_xaxes(title_text="Stock Symbol")
     fig_9.update_layout(
