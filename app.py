@@ -182,11 +182,15 @@ def update_today_chart(date_single,total_selection):
     total_turnovers = int(round(np.sum(today['Amount']), 0))
     total_traded_shares = int(np.sum(today['Traded Shares']))
     total_transaction = np.sum(today['No. Of Transaction'])
-    fig_11 = go.Figure(data=[go.Table(header=dict(values=['Stats', 'Total']),
-                                   cells=dict(values=[['Total Turnover','Total Traded Shares' ,'Total Transaction' ], [total_turnovers,total_traded_shares,total_transaction]]))
+    fig_11 = go.Figure(data=[go.Table(header=dict(values=['STAT', 'TOTAL'],
+                                                  font=dict(color='black', family="Lato", size=30),
+                                                  height=75),
+                                   cells=dict(values=[['Total Turnover','Total Traded Shares' ,'Total Transaction' ], [total_turnovers,total_traded_shares,total_transaction]],
+                                              font=dict(color='black', family="Lato", size=30),
+                                              height=75))
                           ])
 
-    fig_11.update_layout(width=1000, height=300)
+    fig_11.update_layout(width=1000, height=450)
     today['percentage_change'] = (today['Closing Price'] - today['Previous Closing']).div(
         today['Previous Closing']).mul(100)
     top_gainers = today.sort_values('percentage_change', ascending=False)[:total_selection]
