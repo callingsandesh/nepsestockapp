@@ -14,7 +14,6 @@ raw_data=pd.read_csv("2010-05-09 to 2021-06-14.csv",parse_dates=['Date'])
 data = raw_data.set_index('Date')
 sector = pd.read_csv('total_listed_stock_new.csv')
 
-print(data.index[-1].date())
 available_indicators = data['Sector'].dropna().unique()
 available_symbol = data['Stock Symbol'].dropna().unique()
 
@@ -47,6 +46,15 @@ app.layout = html.Div([
         html.H3("Market Summary", style={'textAlign': 'center'}),
     html.Div(dcc.Graph(id='market_summary'),
         style={'width': '100%', 'display': 'flex', 'align-items': 'center', 'justify-content': 'center'}),
+html.Div(
+        dcc.Dropdown(
+        id='tree_map_colors',
+        options=[{'label': i, 'value': i} for i in px.colors.named_colorscales()],
+        value='inferno'
+    )
+        ,
+        style={'width': '100%', 'display': 'flex', 'align-items': 'center', 'justify-content': 'center'}),
+dcc.Graph(id='tree_map'),
 
 html.Div(
         dcc.Dropdown(
@@ -159,7 +167,20 @@ def update_stock(symbol):
     return fig_3,fig_4,fig_5
 
 
-
+@app.callback(
+    Output('tree_map','figure'),
+     [Input('my-date-picker-single','date'),Input('tree_map_colors','value')]
+)
+def update_tree_map_color(date_single,tree_map_color):
+    today_date = date_single
+    print(today_date)
+    today = data.loc[today_date]
+    tree_data = today.dropna()
+    fig = px.treemap(tree_data, path=[tree_data.index, 'Sector', 'Stock Symbol'], values='Closing Price',
+                     color_continuous_scale=tree_map_color
+                     , color='Traded Shares',height=1000)
+    #fig.update_layout(margin=dict(t=10, b=50, r=10, l=10))
+    return fig
 
 ## callbacks to return the top gainers and top loosers , Top gainers vs Traded share VS closing price,
 @app.callback(
@@ -230,12 +251,14 @@ def update_today_chart(date_single,total_selection):
     # Add traces
     fig_8.add_trace(
         go.Bar(x=top_gainers['Stock Symbol'], y=top_gainers['Traded Shares'], name="Total share Traded"),
-        secondary_y=False,)
+        secondary_y=False)
+
     fig_8.add_trace(
         go.Scatter(x=top_gainers['Stock Symbol'], y=top_gainers['Closing Price'], name="Closing price"),
         secondary_y=True,)
     fig_8.update_layout(
-        title_text="Top gainers in ascending order from left to right VS Traded Shares VS Closing Price")
+        title_text="Top gainers in ascending order from left to right VS Traded Shares VS Closing Price",
+        )
     fig_8.update_xaxes(title_text="Stock Symbol")
     fig_8.update_yaxes(title_text="Total Share Traded", secondary_y=False)
     fig_8.update_yaxes(title_text="Closing Price", secondary_y=True)
@@ -355,4 +378,4 @@ server = app.server
 app.title = "ANALYTICS !"
 
 if __name__ == '__main__':
-    app.run_server(debug=False)
+    app.run_server(debug=True)
