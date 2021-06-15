@@ -46,17 +46,18 @@ app.layout = html.Div([
         html.H3("Market Summary", style={'textAlign': 'center'}),
     html.Div(dcc.Graph(id='market_summary'),
         style={'width': '100%', 'display': 'flex', 'align-items': 'center', 'justify-content': 'center'}),
-html.Div(
+    html.Div(
         dcc.Dropdown(
         id='tree_map_colors',
         options=[{'label': i, 'value': i} for i in px.colors.named_colorscales()],
-        value='rainbow'
+        value='inferno'
     )
         ,
         style={'width': '100%', 'display': 'flex', 'align-items': 'center', 'justify-content': 'center'}),
-dcc.Graph(id='tree_map'),
+    html.H3("TREE  MAP  OF  DIFFERENT  STOCK  SECTOR WITH  SIZES  DETERMINING  THE  CLOSING  PRICES  AND  COLORS  DETERMING  THE  TOTAL  TRADED  SHARES", style={'textAlign': 'center'}),
+    dcc.Graph(id='tree_map'),
 
-html.Div(
+    html.Div(
         dcc.Dropdown(
         id='total_selection',
         options=[
