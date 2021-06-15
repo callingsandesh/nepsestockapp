@@ -50,7 +50,7 @@ html.Div(
         dcc.Dropdown(
         id='tree_map_colors',
         options=[{'label': i, 'value': i} for i in px.colors.named_colorscales()],
-        value='inferno'
+        value='rainbow'
     )
         ,
         style={'width': '100%', 'display': 'flex', 'align-items': 'center', 'justify-content': 'center'}),
